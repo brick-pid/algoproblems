@@ -24,27 +24,54 @@ int lislen(vector<int> &v)
   return lislen;
 }
 
-//寻找最后一个<x的数组的下标
-int binary(vector<int> &v, int x)
+//二分寻找第一个 >=x 的数的下标
+int binary(vector<int> &v, int x, int len)
 {
-  int l = 0, r = v.size() - 1;
+  int l = 0, r = len - 1;
   while (l < r)
   {
-    int mid = (l + r + 1) / 2;
+    int mid = (l + r) / 2;
     if (v[mid] < x)
-      l = mid;
+      l = mid + 1;
     else
-      r = mid - 1;
+      r = mid;
   }
-  if (v[l] >= 0)
-    return -1;
-  else
+  if (v[l] >= x)
     return l;
+  else
+    return -1; //dp中不存在>=x的数
+}
+
+//O(nlogn)的DP算法
+int betterlislen(const vector<int> &v)
+{
+  int n = v.size();
+  int dplen = 0; //dp数组的有效长度
+  vector<int> dp(n);
+
+  dp[0] = v[0];
+  dplen++;
+  for (int i = 1; i < n; i++)
+  {
+    int k = binary(dp, v[i], dplen);
+    if (k == -1)
+    {
+      //dp中所有数字都小于k
+      dp[dplen] = v[i];
+      dplen++;
+    }
+    else
+    {
+      dp[k] = v[i];
+    }
+  }
+  return dplen;
 }
 
 int main()
 {
-  vector<int> v{1, 2, 3, 4, 5, 6};
-  cout << binary(v, 1);
+  vector<int> v{10, 9, 2, 5, 3, 7, 101, 18};
+  cout << betterlislen(v) << endl;
+  cout << lislen(v) << endl;
   return 0;
 }
